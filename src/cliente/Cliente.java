@@ -47,6 +47,7 @@ public class Cliente {
 		Cliente c = new Cliente();
         c.iniciar();
 
+
 	}
 
 }
