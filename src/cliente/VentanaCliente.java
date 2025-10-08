@@ -16,7 +16,7 @@ import java.awt.Color;
 import java.awt.Font;
 import javax.swing.JScrollPane;
 
-public class Login_Chat extends JFrame {
+public class VentanaCliente extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -32,7 +32,7 @@ public class Login_Chat extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Login_Chat frame = new Login_Chat();
+					VentanaCliente frame = new VentanaCliente();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -44,7 +44,7 @@ public class Login_Chat extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Login_Chat() {
+	public VentanaCliente() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 779, 540);
