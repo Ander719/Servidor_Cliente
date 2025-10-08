@@ -14,6 +14,7 @@ import javax.swing.JTextArea;
 import javax.swing.JCheckBox;
 import java.awt.Color;
 import java.awt.Font;
+import javax.swing.JScrollPane;
 
 public class Login_Chat extends JFrame {
 
@@ -68,7 +69,7 @@ public class Login_Chat extends JFrame {
 		contentPane.add(textPuerto);
 		
 		JLabel lblPuerto = new JLabel("Puerto:");
-		lblPuerto.setBounds(177, 16, 45, 13);
+		lblPuerto.setBounds(179, 19, 45, 13);
 		contentPane.add(lblPuerto);
 		
 		JButton btnConectar = new JButton("Conectar");
@@ -97,10 +98,6 @@ public class Login_Chat extends JFrame {
 		JLabel lblEstado = new JLabel("");
 		lblEstado.setBounds(517, 37, 238, 13);
 		contentPane.add(lblEstado);
-		
-		JTextArea textAreaChat = new JTextArea();
-		textAreaChat.setBounds(10, 59, 745, 374);
-		contentPane.add(textAreaChat);
 		
 		JCheckBox chckbxPrivado = new JCheckBox("Privado");
 		chckbxPrivado.setBounds(6, 471, 96, 13);
@@ -135,5 +132,13 @@ public class Login_Chat extends JFrame {
 		textNombre.setColumns(10);
 		textNombre.setBounds(411, 13, 96, 19);
 		contentPane.add(textNombre);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 69, 745, 366);
+		contentPane.add(scrollPane);
+		
+		JTextArea textArea = new JTextArea();
+		textArea.setBounds(12, 71, 711, 364);
+		contentPane.add(textArea);
 	}
 }
