@@ -5,49 +5,73 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class Cliente {
-	private final int PUERTO = 5000;
-    private final String IP = "127.0.0.1";
+import compartido.Mensaje;
 
-    public void iniciar() {
-        Socket cliente = null;
-        ObjectOutputStream salida = null;
-        ObjectInputStream entrada = null;
+public class Cliente {
+    private String ip, nombre;
+    private int puerto;
+    private Socket cliente;
+    private ObjectOutputStream salida;
+    private ObjectInputStream entrada;
+    private VentanaCliente ventana;
+
+    public Cliente(String ip, int puerto, String nombre, VentanaCliente ventana) {
+        this.ip = ip;
+        this.puerto = puerto;
+        this.nombre = nombre;
+        this.ventana = ventana;
+    }
+
+    public boolean iniciar() {
         try {
-            cliente = new Socket(IP, PUERTO);//creacion de cliente con IP y PUERTO
-            System.out.println("Conexion realizada con servidor");
+            cliente = new Socket(ip, puerto);
             salida = new ObjectOutputStream(cliente.getOutputStream());
+            salida.flush();
             entrada = new ObjectInputStream(cliente.getInputStream());
-            String mensaje = (String) entrada.readObject();//lee el servidor
-            System.out.println(mensaje);
+
+            // Enviar nombre al servidor
+            Mensaje mensaje = new Mensaje(Mensaje.TIPO_NOMBRE, nombre, "", nombre);
+            salida.writeObject(mensaje);
+            salida.flush();
+
+            // Hilo para recibir mensajes
+            new Thread(new HiloReceptor(entrada, ventana)).start();
             
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage());
+            return true;
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        } finally {
-            try {
-                if (entrada != null) {
-                    entrada.close();
-                }
-                if (salida != null) {
-                    salida.close();
-                }
-                if (cliente != null) {
-                    cliente.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Fin cliente");
+            ventana.mostrarMensaje("❌ Error al conectar: " + e.getMessage());
+            return false;
         }
     }
-        
-	public static void main(String[] args) {
-		Cliente c = new Cliente();
-        c.iniciar();
 
+    public void enviarMensaje(String mensajeTexto, boolean privado, String destinatario) {
+        try {
+            Mensaje mensaje;
+            if (privado && !destinatario.isEmpty()) {
+                mensaje = new Mensaje(Mensaje.TIPO_PRIVADO, nombre, destinatario, mensajeTexto);
+            } else {
+                mensaje = new Mensaje(Mensaje.TIPO_PUBLICO, nombre, mensajeTexto);
+            }
+            salida.writeObject(mensaje);
+            salida.flush();
+        } catch (IOException e) {
+            ventana.mostrarMensaje("❌ Error al enviar mensaje: " + e.getMessage());
+        }
+    }
 
-	}
+    public void desconectar() {
+        try {
+        	Mensaje mensaje = new Mensaje(Mensaje.TIPO_DESCONECTAR, nombre, "");
+            salida.writeObject(mensaje);
+            salida.flush();
 
+            if (entrada != null) entrada.close();
+            if (salida != null) salida.close();
+            if (cliente != null) cliente.close();
+
+            ventana.mostrarMensaje("⚠️ Desconectado del servidor.");
+        } catch (IOException e) {
+            ventana.mostrarMensaje("❌ Error al desconectar: " + e.getMessage());
+        }
+    }
 }

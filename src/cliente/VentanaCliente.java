@@ -20,10 +20,14 @@ public class VentanaCliente extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField textIp;
-	private JTextField textPuerto;
-	private JTextField textPara;
-	private JTextField textField;
+	private JTextField textIp, textPuerto, textNombre, textPara;
+	private JButton btnConectar, btnDesconetar, btnEnviar;
+	private JCheckBox chckbxPrivado;
+	private JTextArea textArea;
+	private JLabel lblEstado;
+	private JTextField textMensaje;
+
+	private Cliente cliente;
 
 	/**
 	 * Launch the application.
@@ -53,92 +57,141 @@ public class VentanaCliente extends JFrame {
 
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		
+
 		JLabel lblIp = new JLabel("Ip:");
 		lblIp.setBounds(10, 16, 45, 13);
 		contentPane.add(lblIp);
-		
-		textIp = new JTextField();
-		textIp.setBounds(51, 13, 96, 19);
-		contentPane.add(textIp);
-		textIp.setColumns(10);
-		
-		textPuerto = new JTextField();
-		textPuerto.setColumns(10);
-		textPuerto.setBounds(232, 13, 96, 19);
-		contentPane.add(textPuerto);
-		
+
 		JLabel lblPuerto = new JLabel("Puerto:");
 		lblPuerto.setBounds(179, 19, 45, 13);
 		contentPane.add(lblPuerto);
-		
-		JButton btnConectar = new JButton("Conectar");
+
+		JLabel lblNombreLabel = new JLabel("Nombre:");
+		lblNombreLabel.setBounds(338, 16, 63, 13);
+		contentPane.add(lblNombreLabel);
+
+		JLabel lblParaLabel = new JLabel("Para:");
+		lblParaLabel.setBounds(102, 471, 45, 13);
+		contentPane.add(lblParaLabel);
+
+		lblEstado = new JLabel("");
+		lblEstado.setBounds(517, 37, 238, 13);
+		contentPane.add(lblEstado);
+
+		// --- TextFields ---
+		textIp = new JTextField("127.0.0.1");
+		textIp.setBounds(51, 13, 96, 19);
+		textIp.setColumns(10);
+		contentPane.add(textIp);
+
+		textPuerto = new JTextField("5000");
+		textPuerto.setBounds(232, 13, 96, 19);
+		textPuerto.setColumns(10);
+		contentPane.add(textPuerto);
+
+		textNombre = new JTextField();
+		textNombre.setBounds(411, 13, 96, 19);
+		textNombre.setColumns(10);
+		contentPane.add(textNombre);
+
+		textPara = new JTextField();
+		textPara.setBounds(129, 468, 96, 19);
+		textPara.setColumns(10);
+		contentPane.add(textPara);
+
+		textMensaje = new JTextField();
+		textMensaje.setBounds(232, 468, 392, 19);
+		contentPane.add(textMensaje);
+		textMensaje.setColumns(10);
+
+		// --- Buttons ---
+		btnConectar = new JButton("Conectar");
 		btnConectar.setFont(new Font("Tahoma", Font.BOLD, 10));
 		btnConectar.setForeground(new Color(0, 0, 0));
 		btnConectar.setBackground(new Color(128, 255, 128));
-		btnConectar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
+		btnConectar.addActionListener(e -> {
+			String ip = textIp.getText();
+		    int puerto;
+		    try {
+		        puerto = Integer.parseInt(textPuerto.getText());
+		    } catch (NumberFormatException ex) {
+		        lblEstado.setText("Puerto inválido");
+		        return;
+		    }
+		    String nombre = textNombre.getText().trim();
+
+		    if (nombre.isEmpty()) {
+		        lblEstado.setText("❌ El nombre no puede estar vacío");
+		        return;
+		    }
+		    this.cliente = new Cliente(ip, puerto, nombre, this);
+		    System.out.println(cliente);
+		    if (this.cliente.iniciar()) {
+		        btnConectar.setEnabled(false);
+		        btnDesconetar.setEnabled(true);
+		        lblEstado.setText("Conectado: " + nombre);
+		    } else {
+		        lblEstado.setText("Error al conectar");
+		    }
 		});
 		btnConectar.setBounds(517, 6, 107, 21);
 		contentPane.add(btnConectar);
-		
-		JButton btnDesconetar = new JButton("Desconetar");
+
+		btnDesconetar = new JButton("Desconetar");
 		btnDesconetar.setFont(new Font("Tahoma", Font.BOLD, 10));
 		btnDesconetar.setForeground(new Color(0, 0, 0));
 		btnDesconetar.setBackground(new Color(255, 0, 0));
 		btnDesconetar.setEnabled(false);
-		btnDesconetar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
+		btnDesconetar.addActionListener(e -> {
+			if (cliente != null) {
+		        cliente.desconectar();
+		        cliente = null;
+		    }
+		    btnConectar.setEnabled(true);
+		    btnDesconetar.setEnabled(false);
+		    lblEstado.setText("Desconectado");
 		});
 		btnDesconetar.setBounds(634, 6, 121, 21);
 		contentPane.add(btnDesconetar);
-		
-		JLabel lblEstado = new JLabel("");
-		lblEstado.setBounds(517, 37, 238, 13);
-		contentPane.add(lblEstado);
-		
-		JCheckBox chckbxPrivado = new JCheckBox("Privado");
-		chckbxPrivado.setBounds(6, 471, 96, 13);
-		contentPane.add(chckbxPrivado);
-		
-		textPara = new JTextField();
-		textPara.setBounds(129, 468, 96, 19);
-		contentPane.add(textPara);
-		textPara.setColumns(10);
-		
-		JLabel lblPara = new JLabel("Para:");
-		lblPara.setBounds(102, 471, 45, 13);
-		contentPane.add(lblPara);
-		
-		textField = new JTextField();
-		textField.setBounds(265, 468, 373, 19);
-		contentPane.add(textField);
-		textField.setColumns(10);
-		
-		JButton btnEnviar = new JButton("Enviar");
+
+		btnEnviar = new JButton("Enviar");
+		btnEnviar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (cliente == null)
+					return;
+
+				String mensajeTexto = textMensaje.getText().trim();
+				boolean privado = chckbxPrivado.isSelected();
+				String destinatario = textPara.getText().trim();
+
+				if (mensajeTexto.isEmpty())
+					return;
+
+				cliente.enviarMensaje(mensajeTexto, privado, destinatario);
+				textMensaje.setText(""); // limpiar campo después de enviar
+
+			}
+		});
 		btnEnviar.setFont(new Font("Tahoma", Font.BOLD, 10));
 		btnEnviar.setForeground(new Color(0, 0, 0));
 		btnEnviar.setBackground(new Color(0, 128, 255));
 		btnEnviar.setBounds(648, 467, 107, 21);
 		contentPane.add(btnEnviar);
-		
-		JLabel lblNombre = new JLabel("Nombre:");
-		lblNombre.setBounds(338, 16, 63, 13);
-		contentPane.add(lblNombre);
-		
-		JTextField textNombre = new JTextField();
-		textNombre.setColumns(10);
-		textNombre.setBounds(411, 13, 96, 19);
-		contentPane.add(textNombre);
-		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 69, 745, 366);
-		contentPane.add(scrollPane);
-		
-		JTextArea textArea = new JTextArea();
-		textArea.setBounds(12, 71, 711, 364);
+
+		// --- CheckBox ---
+		chckbxPrivado = new JCheckBox("Privado");
+		chckbxPrivado.setBounds(6, 471, 96, 13);
+		contentPane.add(chckbxPrivado);
+
+		// --- TextArea ---
+		textArea = new JTextArea();
+		textArea.setBounds(12, 71, 743, 364);
 		contentPane.add(textArea);
+
+	}
+
+	public void mostrarMensaje(String texto) {
+		textArea.append(texto + "\n");
+
 	}
 }
